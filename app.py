@@ -5,9 +5,9 @@ import os
 import numpy as np
 import textblob
 
-#api = os.getenv("MAKERSUITE_API_TOKEN")
+api = os.getenv("MAKERSUITE_API_TOKEN")
 model = genai.GenerativeModel("gemini-1.5-flash")
-genai.configure(api_key="AIzaSyCFIL-2qRWHrUqzyf_TN3A5IKQsVgB2zHg")
+genai.configure(api_key=api)
 
 app = Flask(__name__)
 user_name = ""
