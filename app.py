@@ -4,6 +4,9 @@ import google.generativeai as genai
 import os
 import numpy as np
 import textblob
+import sqlite3
+import datetime
+
 
 #api = os.getenv("MAKERSUITE_API_TOKEN")
 model = genai.GenerativeModel("gemini-1.5-flash")
@@ -25,6 +28,13 @@ def main():
     if flag==1:
         user_name = request.form.get("q")
         flag = 0
+        currentDateTime = datetime.datetime.now()
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('INSERT INTO user (name,timestamp) VALUES(?,?)',(user_name,currentDateTime))
+        conn.commit()
+        c.close()
+        conn.close()
     return(render_template("main.html",r=user_name))
 
 @app.route("/prediction",methods=["GET","POST"])
@@ -81,6 +91,29 @@ def makersuite_gen():
     q = request.form.get("q")
     r = model.generate_content(q)
     return(render_template("makersuite_gen_reply.html",r=r.text))
+
+@app.route("/retrieve_db",methods=["GET","POST"])
+def retrieve_db():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('''select * from user''')
+    r=""
+    for row in c:
+        print(row)
+        r = r + str(row)
+    c.close()
+    conn.close()
+    return(render_template("retrieve_db.html",r=r))
+
+@app.route("/delete_db",methods=["GET","POST"])
+def delete_db():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('''DELETE FROM user''')
+    conn.commit()
+    c.close()
+    conn.close()
+    return(render_template("delete_db.html"))
 
 if __name__ == "__main__":
     app.run()
